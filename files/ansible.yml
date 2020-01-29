@@ -1,0 +1,42 @@
+---
+- hosts: ansible
+  remote_user: vagrant
+  become: yes
+  become_method: sudo
+  vars:
+    pkgs:
+      - vim
+      - tree
+      - tmux
+      - git
+      - curl
+      - wget
+      - screen
+      - zip
+      - openssl
+  tasks:
+    - name: YUM | Install EPEL / Update / Upgrade
+      yum: 
+        name: epel-release
+        update_cache: yes
+        state: present
+      when: ansible_distribution  == 'CentOS'
+    - name: YUM | Cleanup
+      yum: 
+        autoremove: yes
+      when: ansible_distribution  == 'CentOS'
+    - name: APT | Update / Upgrade
+      apt:
+        upgrade: "yes"
+        update_cache: yes
+        autoremove: yes
+        autoclean: yes
+      when: ansible_distribution  == 'Ubuntu'
+    - name: Install Applications
+      package:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ pkgs }}"
+    - name: install pyvomi
+      pip:
+        name: pyvmomi    
